@@ -1,5 +1,7 @@
 import asyncio
 import aiohttp
+import sys
+import logging
 
 from mcp.server.models import InitializationOptions
 import mcp.types as types
@@ -21,13 +23,18 @@ async def handle_list_prompts() -> list[types.Prompt]:
     return [
         types.Prompt(
             name="perplexity_search_web",
-            description="Use Perplexity to search the web",
+            description="Use Perplexity to search the web for a query and return results from the last specified time frame",
             arguments=[
                 types.PromptArgument(
                     name="query",
                     description="The query to search for",
                     required=True,
-                )
+                ),
+                types.PromptArgument(
+                    name="timeframe",
+                    description="The time frame to search for. Allowed options are: 'day', 'week', 'month', 'year'. Defaults to 'month'.",
+                    required=False,
+                ),
             ],
         )
     ]
@@ -44,7 +51,7 @@ async def handle_get_prompt(
         raise ValueError(f"Unknown prompt: {name}")
 
     query = (arguments or {}).get("query", "")
-
+    timeframe = (arguments or {}).get("timeframe", "month")
     return types.GetPromptResult(
         description="Search the web for the query",
         messages=[
@@ -54,7 +61,14 @@ async def handle_get_prompt(
                     type="text",
                     text=f"Search the web for the query: {query}",
                 ),
-            )
+            ),
+            types.PromptMessage(
+                role="user",
+                content=types.TextContent(
+                    type="text",
+                    text=f"Search for the last: {timeframe}",
+                ),
+            ),
         ],
     )
 
@@ -82,12 +96,13 @@ async def call_tool(
 ) -> list[types.TextContent | types.ImageContent | types.EmbeddedResource]:
     if name == "perplexity_search_web":
         query = arguments["query"]
-        result = await call_perplexity(query)
+        timeframe = arguments.get("timeframe", "month")
+        result = await call_perplexity(query, timeframe)
         return [types.TextContent(type="text", text=str(result))]
     raise ValueError(f"Tool not found: {name}")
 
 
-async def call_perplexity(query: str) -> str:
+async def call_perplexity(query: str, timeframe: str) -> str:
 
     url = "https://api.perplexity.ai/chat/completions"
 
@@ -102,7 +117,7 @@ async def call_perplexity(query: str) -> str:
         "top_p": 0.9,
         "return_images": False,
         "return_related_questions": False,
-        "search_recency_filter": "month",
+        "search_recency_filter": timeframe,
         "top_k": 0,
         "stream": False,
         "presence_penalty": 0,
@@ -139,3 +154,22 @@ async def main():
                 ),
             ),
         )
+
+
+def cli():
+    """CLI entry point for perplexity-mcp"""
+    logging.basicConfig(level=logging.INFO)
+
+    API_KEY = os.getenv("PERPLEXITY_API_KEY")
+    if not API_KEY:
+        print(
+            "Error: PERPLEXITY_API_KEY environment variable is required",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    asyncio.run(main())
+
+
+if __name__ == "__main__":
+    cli()
