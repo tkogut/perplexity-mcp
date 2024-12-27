@@ -11,7 +11,7 @@ description = "Perplexity MCP Server"
 dependencies = [
     "aiohttp",
     "pydantic",
-    "mcp>=1.0.0",
+    "mcp>=1.0.2",
 ]
 
 [project.scripts]
