@@ -23,16 +23,16 @@ async def handle_list_prompts() -> list[types.Prompt]:
     return [
         types.Prompt(
             name="perplexity_search_web",
-            description="Use Perplexity to search the web for a query and return results from the last specified time frame",
+            description="Search the web using Perplexity AI and filter results by recency",
             arguments=[
                 types.PromptArgument(
                     name="query",
-                    description="The query to search for",
+                    description="The search query to find information about",
                     required=True,
                 ),
                 types.PromptArgument(
-                    name="timeframe",
-                    description="The time frame to search for. Allowed options are: 'day', 'week', 'month', 'year'. Defaults to 'month'.",
+                    name="recency",
+                    description="Filter results by how recent they are. Options: 'day' (last 24h), 'week' (last 7 days), 'month' (last 30 days), 'year' (last 365 days). Defaults to 'month'.",
                     required=False,
                 ),
             ],
@@ -51,22 +51,22 @@ async def handle_get_prompt(
         raise ValueError(f"Unknown prompt: {name}")
 
     query = (arguments or {}).get("query", "")
-    timeframe = (arguments or {}).get("timeframe", "month")
+    recency = (arguments or {}).get("recency", "month")
     return types.GetPromptResult(
-        description="Search the web for the query",
+        description=f"Search the web for information about: {query}",
         messages=[
             types.PromptMessage(
                 role="user",
                 content=types.TextContent(
                     type="text",
-                    text=f"Search the web for the query: {query}",
+                    text=f"Find recent information about: {query}",
                 ),
             ),
             types.PromptMessage(
                 role="user",
                 content=types.TextContent(
                     type="text",
-                    text=f"Search for the last: {timeframe}",
+                    text=f"Only include results from the last {recency}",
                 ),
             ),
         ],
@@ -78,11 +78,16 @@ async def list_tools() -> list[types.Tool]:
     return [
         types.Tool(
             name="perplexity_search_web",
-            description="Use Perplexity to search the web",
+            description="Search the web using Perplexity AI with recency filtering",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "query": {"type": "string"},
+                    "recency": {
+                        "type": "string",
+                        "enum": ["day", "week", "month", "year"],
+                        "default": "month",
+                    },
                 },
                 "required": ["query"],
             },
@@ -96,13 +101,13 @@ async def call_tool(
 ) -> list[types.TextContent | types.ImageContent | types.EmbeddedResource]:
     if name == "perplexity_search_web":
         query = arguments["query"]
-        timeframe = arguments.get("timeframe", "month")
-        result = await call_perplexity(query, timeframe)
+        recency = arguments.get("recency", "month")
+        result = await call_perplexity(query, recency)
         return [types.TextContent(type="text", text=str(result))]
     raise ValueError(f"Tool not found: {name}")
 
 
-async def call_perplexity(query: str, timeframe: str) -> str:
+async def call_perplexity(query: str, recency: str) -> str:
 
     url = "https://api.perplexity.ai/chat/completions"
 
@@ -117,7 +122,7 @@ async def call_perplexity(query: str, timeframe: str) -> str:
         "top_p": 0.9,
         "return_images": False,
         "return_related_questions": False,
-        "search_recency_filter": timeframe,
+        "search_recency_filter": recency,
         "top_k": 0,
         "stream": False,
         "presence_penalty": 0,
