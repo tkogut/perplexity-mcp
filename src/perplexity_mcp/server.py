@@ -9,7 +9,7 @@ from mcp.server import NotificationOptions, Server
 from pydantic import AnyUrl
 import mcp.server.stdio
 import os
-from perplexity_mcp import __version__
+from .__init__ import __version__
 
 
 server = Server("perplexity-mcp")
@@ -153,7 +153,7 @@ async def main():
             write_stream,
             InitializationOptions(
                 server_name="perplexity-mcp",
-                server_version=__version__,
+                server_version="0.1.0",
                 capabilities=server.get_capabilities(
                     notification_options=NotificationOptions(),
                     experimental_capabilities={},

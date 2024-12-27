@@ -10,6 +10,11 @@ A Model Context Protocol (MCP) server that provides web search functionality usi
 The server provides a single prompt:
 - perplexity_search_web: Search the web using Perplexity AI
   - Required "query" argument for the search query
+  - Optional "recency" argument to filter results by time period:
+    - 'day': last 24 hours
+    - 'week': last 7 days
+    - 'month': last 30 days (default)
+    - 'year': last 365 days
   - Uses Perplexity's API to perform web searches
 
 ### Tools
@@ -17,6 +22,7 @@ The server provides a single prompt:
 The server implements one tool:
 - perplexity_search_web: Search the web using Perplexity AI
   - Takes "query" as a required string argument
+  - Optional "recency" parameter to filter results (day/week/month/year)
   - Returns search results from Perplexity's API
 
 ## Installation
