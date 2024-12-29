@@ -32,16 +32,38 @@ The server implements one tool:
 
 ## Installation
 
-### Using uv (recommended)
+
+### Requires [UV](https://github.com/astral-sh/uv) (Fast Python package and project manager)
+
+If uv isn't installed. 
+
+```bash 
+# Using Homebrew on macOS 
+brew install uv
+```
+
+or
+
+```bash
+# On macOS and Linux.
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# On Windows.
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+
+Next, install the MCP server
+
+```bash
+# Install from PyPi
+uv pip install perplexity-mcp
+```
+or 
 
 ```bash
 # Install from source
 uv pip install git+https://github.com/jsonallen/perplexity-mcp.git
-
-# Or install in development mode
-git clone https://github.com/jasonallen/perplexity-mcp.git
-cd perplexity-mcp
-uv pip install -e .
 ```
 
 ### Environment Variables
@@ -53,7 +75,7 @@ The following environment variable is required in your claude_desktop_config.jso
 
 #### Claude Desktop
 
-Add this tool as a mcp server
+Add this tool as a mcp server by editing the Claude config file.
 
 On MacOS: `~/Library/Application\ Support/Claude/claude_desktop_config.json`
 On Windows: `%APPDATA%/Claude/claude_desktop_config.json`
@@ -62,14 +84,16 @@ On Windows: `%APPDATA%/Claude/claude_desktop_config.json`
   ```json
     "perplexity-mcp": {
       "env": {
-        "PERPLEXITY_API_KEY": "123456790"
+        "PERPLEXITY_API_KEY": "XXXXXXXXXXXXXXXXXXXX"
       },
       "command": "uv",
       "args": [
-        "--directory",
-        "/ABSOLUTE/PATH/TO/perplexity-mcp",
         "run",
         "perplexity-mcp"
       ]
     }
   ```
+  To verify the server is working.  Open the Claude client and use a prompt like "search the web for news about openai in the past week".  You should see an alert box open to confirm tool usage. Click "Allow for this chat".
+  
+  <img width="800" alt="mcp_screenshot" src="https://github.com/user-attachments/assets/096fec0c-5022-4aec-96f0-c52c0efd7084" />
+
