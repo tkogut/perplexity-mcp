@@ -95,5 +95,5 @@ On Windows: `%APPDATA%/Claude/claude_desktop_config.json`
   ```
   To verify the server is working.  Open the Claude client and use a prompt like "search the web for news about openai in the past week".  You should see an alert box open to confirm tool usage. Click "Allow for this chat".
   
-  <img width="800" alt="mcp_screenshot" src="https://github.com/user-attachments/assets/096fec0c-5022-4aec-96f0-c52c0efd7084" />
+  <img width="800" alt="mcp_screenshot" src="https://github.com/user-attachments/assets/922d8f6a-8c9a-4978-8be6-788e70b4d049" />
 
