@@ -1,5 +1,7 @@
 # perplexity-mcp MCP server
 
+[![smithery badge](https://smithery.ai/badge/perplexity-mcp)](https://smithery.ai/server/perplexity-mcp)
+
 A Model Context Protocol (MCP) server that provides web search functionality using [Perplexity AI's](https://www.perplexity.ai/) API.  Works with the [Anthropic](https://www.anthropic.com/news/model-context-protocol) Claude desktop client. 
 
 ## Example
@@ -32,6 +34,13 @@ The server implements one tool:
 
 ## Installation
 
+### Installing via Smithery
+
+To install Perplexity MCP for Claude Desktop automatically via [Smithery](https://smithery.ai/server/perplexity-mcp):
+
+```bash
+npx -y @smithery/cli install perplexity-mcp --client claude
+```
 
 ### Requires [UV](https://github.com/astral-sh/uv) (Fast Python package and project manager)
 
