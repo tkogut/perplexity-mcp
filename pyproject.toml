@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "perplexity-mcp"
-version = "0.1.4"
+version = "0.1.5"
 requires-python = ">=3.11"
 readme = "README.md"
 description = "Perplexity MCP Server"
@@ -12,6 +12,7 @@ dependencies = [
     "aiohttp",
     "pydantic",
     "mcp>=1.0.2",
+    "certifi",
 ]
 
 [project.scripts]
