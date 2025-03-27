@@ -113,8 +113,11 @@ async def call_perplexity(query: str, recency: str) -> str:
 
     url = "https://api.perplexity.ai/chat/completions"
 
+    # Get the model from environment variable or use "sonar" as default
+    model = os.getenv("PERPLEXITY_MODEL", "sonar")
+
     payload = {
-        "model": "sonar",
+        "model": model,
         "messages": [
             {"role": "system", "content": "Be precise and concise."},
             {"role": "user", "content": query},
@@ -184,6 +187,25 @@ def main():
             file=sys.stderr,
         )
         sys.exit(1)
+
+    # Log which model is being used (helpful for debug)
+    model = os.getenv("PERPLEXITY_MODEL", "sonar")
+    logging.info(f"Using Perplexity AI model: {model}")
+    
+    # List available models
+    available_models = {
+        "sonar-deep-research": "128k context - Enhanced research capabilities",
+        "sonar-reasoning-pro": "128k context - Advanced reasoning with professional focus",
+        "sonar-reasoning": "128k context - Enhanced reasoning capabilities",
+        "sonar-pro": "200k context - Professional grade model",
+        "sonar": "128k context - Default model",
+        "r1-1776": "128k context - Alternative architecture"
+    }
+    
+    logging.info("Available Perplexity models (set with PERPLEXITY_MODEL environment variable):")
+    for model_name, description in available_models.items():
+        marker = "→" if model_name == model else " "
+        logging.info(f" {marker} {model_name}: {description}")
 
     asyncio.run(main_async())
 
