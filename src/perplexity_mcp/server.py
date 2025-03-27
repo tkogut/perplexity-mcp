@@ -2,15 +2,16 @@ import asyncio
 import aiohttp
 import sys
 import logging
+import json
+from datetime import datetime
+import os
 
 from mcp.server.models import InitializationOptions
 import mcp.types as types
 from mcp.server import NotificationOptions, Server
 from pydantic import AnyUrl
 import mcp.server.stdio
-import os
-from .__init__ import __version__
-
+from perplexity_mcp import __version__
 
 server = Server("perplexity-mcp")
 
@@ -128,6 +129,8 @@ async def call_perplexity(query: str, recency: str) -> str:
         "stream": False,
         "presence_penalty": 0,
         "frequency_penalty": 1,
+        "return_citations": True,
+        "search_context_size": "low",
     }
 
     headers = {
@@ -139,10 +142,18 @@ async def call_perplexity(query: str, recency: str) -> str:
         async with session.post(url, json=payload, headers=headers) as response:
             response.raise_for_status()
             data = await response.json()
-            return data["choices"][0]["message"]["content"]
+            content = data["choices"][0]["message"]["content"]
+            
+            # Format response with citations if available
+            if "citations" in data:
+                citations = data["citations"]
+                formatted_citations = "\n\nCitations:\n" + "\n".join(f"[{i+1}] {url}" for i, url in enumerate(citations))
+                return content + formatted_citations
+            
+            return content
 
 
-async def main():
+async def main_async():
     API_KEY = os.getenv("PERPLEXITY_API_KEY")
     if not API_KEY:
         raise ValueError("PERPLEXITY_API_KEY environment variable is required")
@@ -153,7 +164,7 @@ async def main():
             write_stream,
             InitializationOptions(
                 server_name="perplexity-mcp",
-                server_version="0.1.0",
+                server_version=__version__,
                 capabilities=server.get_capabilities(
                     notification_options=NotificationOptions(),
                     experimental_capabilities={},
@@ -162,7 +173,7 @@ async def main():
         )
 
 
-def cli():
+def main():
     """CLI entry point for perplexity-mcp"""
     logging.basicConfig(level=logging.INFO)
 
@@ -174,8 +185,8 @@ def cli():
         )
         sys.exit(1)
 
-    asyncio.run(main())
+    asyncio.run(main_async())
 
 
 if __name__ == "__main__":
-    cli()
+    main()
